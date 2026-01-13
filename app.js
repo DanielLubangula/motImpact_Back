@@ -31,7 +31,7 @@ app.use('/static', express.static(path.join(process.cwd(), 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminRoutes); 
 app.use('/api/public', publicHomeRoutes);
 app.use('/api/public', publicBioRoutes);
 app.use('/api/public', publicSocialRoutes);

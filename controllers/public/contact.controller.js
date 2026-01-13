@@ -15,9 +15,8 @@ export const sendContactMessage = async (req, res, next) => {
       nom,
       email,
       sujet,
-      message,
-      statut: 'non_lu',
-      date_envoi: new Date()
+      contenu: message,
+      statut: 'non_lu'
     });
 
     await newMessage.save();

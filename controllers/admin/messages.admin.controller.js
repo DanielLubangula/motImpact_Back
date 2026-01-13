@@ -8,7 +8,7 @@ import logger from '../../utils/logger.js';
  */
 export const getMessages = async (req, res, next) => {
   try {
-    const messages = await Message.find({}).sort({ date_envoi: -1 }).lean();
+    const messages = await Message.find({}).sort({ created_at: -1 }).lean();
     
     res.status(200).json({
       status: 'success',
@@ -23,16 +23,22 @@ export const getMessages = async (req, res, next) => {
 };
 
 /**
- * Récupère un message par ID
+ * Récupère un message par ID et le marque comme lu
  * @route GET /api/admin/messages/:id
  */
 export const getMessage = async (req, res, next) => {
   try {
     const { id } = req.params;
     
-    const message = await Message.findById(id).lean();
+    const message = await Message.findById(id);
     if (!message) {
       return next(new AppError(404, 'Message non trouvé'));
+    }
+    
+    // Marquer comme lu si ce n'était pas déjà fait
+    if (message.statut === 'non_lu') {
+      message.statut = 'lu';
+      await message.save();
     }
     
     res.status(200).json({
@@ -101,4 +107,22 @@ export const deleteMessage = async (req, res, next) => {
   }
 };
 
-export default { getMessages, getMessage, updateMessageStatus, deleteMessage };
+/**
+ * Récupère le nombre de messages non lus
+ * @route GET /api/admin/messages/unread/count
+ */
+export const getUnreadCount = async (req, res, next) => {
+  try {
+    const count = await Message.countDocuments({ statut: 'non_lu' });
+    
+    res.status(200).json({
+      status: 'success',
+      data: { count }
+    });
+  } catch (err) {
+    logger.error({ err }, 'Error in getUnreadCount');
+    return next(new AppError(500, err.message));
+  }
+};
+
+export default { getMessages, getMessage, updateMessageStatus, deleteMessage, getUnreadCount };

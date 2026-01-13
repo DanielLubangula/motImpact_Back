@@ -36,6 +36,11 @@ const bookSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  // Lien de téléchargement pour les livres payants (Maketou)
+  lien_telechargement: {
+    type: String,
+    default: ''
+  },
   couverture: {
     type: String,
     default: ''

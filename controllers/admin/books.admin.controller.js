@@ -9,7 +9,7 @@ import logger from '../../utils/logger.js';
  */
 export const createBook = async (req, res, next) => {
   try {
-    const { titre, description, extrait, statut, prix, is_featured } = req.body;
+    const { titre, description, extrait, statut, prix, is_featured, fichier_pdf, couverture, lien_telechargement } = req.body;
 
     const bookData = { titre, description, extrait, statut, prix: prix ? Number(prix) : 0 };
 
@@ -18,15 +18,30 @@ export const createBook = async (req, res, next) => {
       bookData.is_featured = is_featured === true || is_featured === 'true';
     }
 
+    // Ajouter le lien de téléchargement pour les livres payants
+    if (lien_telechargement) {
+      bookData.lien_telechargement = lien_telechargement;
+    }
+
+    // Si des URLs sont fournies directement (sans upload de fichiers)
+    if (fichier_pdf && typeof fichier_pdf === 'string') {
+      bookData.fichier_pdf = fichier_pdf;
+    }
+    if (couverture && typeof couverture === 'string') {
+      bookData.couverture = couverture;
+    }
+
     // fichiers envoyés via multipart/form-data (multer memoryStorage)
     const files = req.files || {};
 
-    // Ensure required files are present
-    if (!files.fichier_pdf || !files.fichier_pdf[0] || !files.couverture || !files.couverture[0]) {
-      return next(new AppError(400, 'Fichier PDF et couverture requis'));
+    // Si pas d'URLs fournies, vérifier les fichiers uploadés
+    if (!bookData.fichier_pdf && !bookData.couverture) {
+      if (!files.fichier_pdf || !files.fichier_pdf[0] || !files.couverture || !files.couverture[0]) {
+        return next(new AppError(400, 'Fichier PDF et couverture requis'));
+      }
     }
 
-    if (files.fichier_pdf && files.fichier_pdf[0]) {
+    if (files.fichier_pdf && files.fichier_pdf[0] && !bookData.fichier_pdf) {
       const pdfFile = files.fichier_pdf[0];
       const uploadResult = await uploadBuffer(pdfFile.buffer, {
         folder: 'plume-noire/books/files',
@@ -36,7 +51,7 @@ export const createBook = async (req, res, next) => {
       bookData.fichier_pdf_public_id = uploadResult.public_id;
     }
 
-    if (files.couverture && files.couverture[0]) {
+    if (files.couverture && files.couverture[0] && !bookData.couverture) {
       const coverFile = files.couverture[0];
       const uploadResult = await uploadBuffer(coverFile.buffer, {
         folder: 'plume-noire/books/covers',
@@ -62,7 +77,7 @@ export const createBook = async (req, res, next) => {
 export const updateBook = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { titre, description, extrait, statut, prix } = req.body;
+    const { titre, description, extrait, statut, prix, fichier_pdf, couverture, lien_telechargement } = req.body;
 
     const book = await Book.findById(id);
     if (!book) return next(new AppError(404, 'Book not found'));
@@ -74,6 +89,15 @@ export const updateBook = async (req, res, next) => {
     if (statut) updateData.statut = statut;
     if (prix !== undefined) updateData.prix = Number(prix);
     if (req.body.is_featured !== undefined) updateData.is_featured = req.body.is_featured === true || req.body.is_featured === 'true';
+    if (lien_telechargement !== undefined) updateData.lien_telechargement = lien_telechargement;
+
+    // Si des URLs sont fournies directement
+    if (fichier_pdf && typeof fichier_pdf === 'string') {
+      updateData.fichier_pdf = fichier_pdf;
+    }
+    if (couverture && typeof couverture === 'string') {
+      updateData.couverture = couverture;
+    }
 
     const files = req.files || {};
 
