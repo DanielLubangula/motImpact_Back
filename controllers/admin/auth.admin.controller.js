@@ -15,25 +15,38 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
  
-    const admin = await Admin.findOne({ email });
+    const admin = await Admin.findOne({ email }).select('+password');
     if (!admin) {
       return next(new AppError(401, 'Identifiants invalides'));
     }
 
-    const isPasswordValid = await bcrypt.compare(password, admin.password_hash);
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
     if (!isPasswordValid) {
       return next(new AppError(401, 'Identifiants invalides'));
     }
 
     const token = jwt.sign(
-      { adminId: admin._id, email: admin.email },
+      { id: admin._id, email: admin.email },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
+
+    // Envoyer le token dans un cookie httpOnly ET dans la réponse
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 heures
+    });
 
     res.status(200).json({
       status: 'success',
-      token
+      token,
+      admin: {
+        id: admin._id,
+        email: admin.email,
+        nom: admin.nom
+      }
     });
   } catch (err) {
     next(new AppError(500, err.message));
@@ -92,7 +105,7 @@ export const updateProfile = async (req, res, next) => {
       return next(new AppError(400, 'Mot de passe actuel requis pour toute modification'));
     }
     
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, admin.password_hash);
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, admin.password);
     if (!isCurrentPasswordValid) {
       return next(new AppError(401, 'Mot de passe actuel incorrect'));
     }
@@ -109,7 +122,7 @@ export const updateProfile = async (req, res, next) => {
     // Mettre à jour le mot de passe si fourni
     if (password) {
       const saltRounds = 12;
-      updateData.password_hash = await bcrypt.hash(password, saltRounds);
+      updateData.password = await bcrypt.hash(password, saltRounds);
     }
 
     // Nom, biographie, courte biographie, email de contact et message d'accroche
@@ -215,13 +228,30 @@ export const updateProfile = async (req, res, next) => {
 };
 
 /**
+ * Déconnecte l'administrateur
+ * @route POST /api/admin/logout
+ * @returns {Promise<Object>} Message de succès
+ */
+export const logout = async (req, res, next) => {
+  try {
+    res.clearCookie('token');
+    res.status(200).json({
+      status: 'success',
+      message: 'Déconnexion réussie'
+    });
+  } catch (err) {
+    next(new AppError(500, err.message));
+  }
+};
+
+/**
  * TEST - Récupère toutes les infos admin sans protection
  * @route GET /test/admin-info
  * @returns {Promise<Object>} Toutes les infos admin
  */
 export const getAdminInfoTest = async (req, res, next) => {
   try {
-    const admin = await Admin.findOne().select('-password_hash');
+    const admin = await Admin.findOne().select('-password');
     res.status(200).json({
       status: 'success',
       admin: admin

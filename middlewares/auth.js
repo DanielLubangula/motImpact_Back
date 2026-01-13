@@ -20,7 +20,7 @@ export const requireAdminAuth = async (req, res, next) => {
       return next(new AppError(401, 'Unauthorized'));
     }
 
-    const admin = await Admin.findById(payload.adminId);
+    const admin = await Admin.findById(payload.id);
     if (!admin) {
       return next(new AppError(401, 'Unauthorized'));
     }

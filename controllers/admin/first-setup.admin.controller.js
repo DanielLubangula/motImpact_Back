@@ -15,11 +15,11 @@ export const firstSetup = async (req, res, next) => {
     }
 
     const { email, password } = req.body;
-    const password_hash = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     await Admin.create({
       email,
-      password_hash
+      password: hashedPassword
     });
 
     res.status(201).json({

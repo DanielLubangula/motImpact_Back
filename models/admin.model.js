@@ -12,9 +12,10 @@ const adminSchema = new mongoose.Schema({
     unique: true,
     lowercase: true
   },
-  password_hash: {
+  password: {
     type: String,
-    required: true
+    required: true,
+    select: false
   },
   nom: { type: String, default: '' },
   biographie: { type: String, default: '' },
