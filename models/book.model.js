@@ -13,7 +13,7 @@ const bookSchema = new mongoose.Schema({
   extrait: {
     type: String,
     default: ''
-  },
+  },  
   statut: {
     type: String,
     enum: ['gratuit', 'payant'],

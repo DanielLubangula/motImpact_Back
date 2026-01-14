@@ -34,10 +34,18 @@ export const createBook = async (req, res, next) => {
     // fichiers envoyés via multipart/form-data (multer memoryStorage)
     const files = req.files || {};
 
-    // Si pas d'URLs fournies, vérifier les fichiers uploadés
-    if (!bookData.fichier_pdf && !bookData.couverture) {
-      if (!files.fichier_pdf || !files.fichier_pdf[0] || !files.couverture || !files.couverture[0]) {
-        return next(new AppError(400, 'Fichier PDF et couverture requis'));
+    // Validation selon le statut :
+    // - Gratuit : on exige un fichier PDF ET une couverture (via URL ou upload)
+    // - Payant : on exige un lien de téléchargement (Maketou)
+    if (statut === 'gratuit') {
+      if (!bookData.fichier_pdf && !bookData.couverture) {
+        if (!files.fichier_pdf || !files.fichier_pdf[0] || !files.couverture || !files.couverture[0]) {
+          return next(new AppError(400, 'Fichier PDF et couverture requis pour les livres gratuits'));
+        }
+      }
+    } else if (statut === 'payant') {
+      if (!bookData.lien_telechargement) {
+        return next(new AppError(400, 'Lien de téléchargement requis pour les livres payants'));
       }
     }
 
@@ -81,6 +89,14 @@ export const updateBook = async (req, res, next) => {
 
     const book = await Book.findById(id);
     if (!book) return next(new AppError(404, 'Book not found'));
+
+    // Si le statut est changé vers payant, s'assurer qu'un lien de téléchargement est présent (nouveau ou existant)
+    if (req.body.statut === 'payant') {
+      const newLink = req.body.lien_telechargement;
+      if (!newLink && !book.lien_telechargement) {
+        return next(new AppError(400, 'Lien de téléchargement requis pour les livres payants'));
+      }
+    }
 
     const updateData = {};
     if (titre) updateData.titre = titre;
@@ -177,7 +193,18 @@ export const deleteBook = async (req, res, next) => {
 export const getBooks = async (req, res, next) => {
   try {
     const books = await Book.find().sort({ created_at: -1 });
-    return res.status(200).json({ status: 'success', data: { books } });
+
+    // Comptes additionnels pour aider au debug (et cohérence)
+    const total_books = await Book.countDocuments();
+    const livres_gratuits = await Book.countDocuments({ prix: 0 });
+    const livres_payants = await Book.countDocuments({ prix: { $gt: 0 } });
+
+    logger.info({ total_books, livres_gratuits, livres_payants, count_returned: books.length }, 'Fetched books for admin');
+
+    return res.status(200).json({
+      status: 'success',
+      data: { books, total_books, livres_gratuits, livres_payants }
+    });
   } catch (err) {
     logger.error({ err }, 'Error fetching books');
     return next(new AppError(500, err.message));
