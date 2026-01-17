@@ -1,6 +1,38 @@
 import Message from '../../models/message.model.js';
+import Admin from '../../models/admin.model.js';
 import AppError from '../../utils/app-error.js';
 import logger from '../../utils/logger.js';
+
+/**
+ * Récupère les informations de contact de l'auteur
+ * @route GET /api/public/getcontact
+ */
+export const getContactInfo = async (req, res, next) => {
+  try {
+    const admin = await Admin.findOne().select('email_contact telephone');
+    
+    if (!admin) {
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          email_contact: '',
+          telephone: ''
+        }
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        email_contact: admin.email_contact || '',
+        telephone: admin.telephone || ''
+      }
+    });
+  } catch (err) {
+    logger.error({ err }, 'Error in getContactInfo');
+    return next(new AppError(500, err.message));
+  }
+};
 
 /**
  * Envoie un message de contact
@@ -36,4 +68,4 @@ export const sendContactMessage = async (req, res, next) => {
   }
 };
 
-export default { sendContactMessage };
+export default { sendContactMessage, getContactInfo };

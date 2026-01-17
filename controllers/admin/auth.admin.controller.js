@@ -17,12 +17,12 @@ export const login = async (req, res, next) => {
  
     const admin = await Admin.findOne({ email }).select('+password');
     if (!admin) {
-      return next(new AppError(401, 'Identifiants invalides'));
+      return next(new AppError(401, 'Accès refusé : Email ou mot de passe incorrect'));
     }
 
     const isPasswordValid = await bcrypt.compare(password, admin.password);
     if (!isPasswordValid) {
-      return next(new AppError(401, 'Identifiants invalides'));
+      return next(new AppError(401, 'Accès refusé : Email ou mot de passe incorrect'));
     }
 
     const token = jwt.sign(

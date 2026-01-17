@@ -15,7 +15,7 @@ import publicContactRoutes from './routes/public/contact.public.route.js';
 import { getAdminInfoTest } from './controllers/admin/auth.admin.controller.js';
 import logger from './utils/logger.js';
 
-dotenv.config();  
+dotenv.config();       
 await connectDB();
 
 const app = express();

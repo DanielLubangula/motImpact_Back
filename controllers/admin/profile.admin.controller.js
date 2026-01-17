@@ -5,7 +5,7 @@ import AppError from '../../utils/app-error.js';
 import { uploadBuffer, deleteResource } from '../../utils/cloudinary.js';
 import logger from '../../utils/logger.js';
 
-const ALLOWED_NETWORKS = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'tiktok', 'github'];
+const ALLOWED_NETWORKS = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'tiktok', 'github', 'whatsapp'];
 
 /**
  * Récupère le profil admin complet (données admin + auteur)
@@ -54,6 +54,10 @@ export const getProfile = async (req, res, next) => {
  */
 export const updateProfile = async (req, res, next) => {
   try {
+    console.log('=== UPDATE PROFILE DEBUG ===');
+    console.log('Body:', req.body);
+    console.log('File:', req.file);
+    
     const { nom, biographie, short_biographie, email_contact, message_accroche, email, currentPassword, password, socials } = req.body;
     
     // Nettoyer l'email si il contient mailto:
@@ -61,6 +65,7 @@ export const updateProfile = async (req, res, next) => {
     
     // Vérification du mot de passe actuel (obligatoire pour toute modification)
     if (!currentPassword) {
+      console.log('Erreur: Mot de passe actuel manquant');
       return next(new AppError(400, 'Mot de passe actuel requis'));
     }
 

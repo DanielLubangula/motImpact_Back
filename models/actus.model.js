@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { capitalizeFirstLetter } from '../utils/text-formatter.js';
 
 const actusSchema = new mongoose.Schema({
   titre: {
@@ -25,6 +26,17 @@ const actusSchema = new mongoose.Schema({
   updated_at: {
     type: Date
   }
+});
+
+// Middleware pour capitaliser automatiquement certains champs
+actusSchema.pre('save', function(next) {
+  if (this.titre) {
+    this.titre = capitalizeFirstLetter(this.titre);
+  }
+  if (this.contenu) {
+    this.contenu = capitalizeFirstLetter(this.contenu);
+  }
+  next();
 });
 
 export default mongoose.model('Actu', actusSchema);

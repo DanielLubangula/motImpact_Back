@@ -1,5 +1,6 @@
 
 import mongoose from 'mongoose';
+import { capitalizeFirstLetter } from '../utils/text-formatter.js';
 
 const messageSchema = new mongoose.Schema({
   nom: {
@@ -30,6 +31,20 @@ const messageSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+});
+
+// Middleware pour capitaliser automatiquement certains champs
+messageSchema.pre('save', function(next) {
+  if (this.nom) {
+    this.nom = capitalizeFirstLetter(this.nom);
+  }
+  if (this.sujet) {
+    this.sujet = capitalizeFirstLetter(this.sujet);
+  }
+  if (this.contenu) {
+    this.contenu = capitalizeFirstLetter(this.contenu);
+  }
+  next();
 });
 
 export default mongoose.model('Message', messageSchema);
