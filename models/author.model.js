@@ -15,6 +15,8 @@ const authorSchema = new mongoose.Schema({
   email_contact: { type: String, default: '' },
   message_accroche: { type: String, default: '' },
   telephone: { type: String, default: '' },
+  mon_parcours: { type: String, default: '' },
+  mon_univers_litteraire: { type: String, default: '' },
   social_links: { type: [socialSchema], default: [] },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date }
