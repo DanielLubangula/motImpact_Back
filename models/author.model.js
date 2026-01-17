@@ -14,6 +14,7 @@ const authorSchema = new mongoose.Schema({
   photo_public_id: { type: String, default: '' },
   email_contact: { type: String, default: '' },
   message_accroche: { type: String, default: '' },
+  telephone: { type: String, default: '' },
   social_links: { type: [socialSchema], default: [] },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date }
