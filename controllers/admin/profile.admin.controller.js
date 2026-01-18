@@ -29,16 +29,29 @@ export const getProfile = async (req, res, next) => {
     
     // Combiner les données
     const profile = {
-      _id: admin._id,
-      email: admin.email,
-      nom: author.nom || admin.nom || '',
-      biographie: author.biographie || admin.biographie || '',
-      short_biographie: author.short_biographie || admin.short_biographie || '',
-      email_contact: author.email_contact || admin.email_contact || '',
-      message_accroche: author.message_accroche || admin.message_accroche || '',
-      photo: (author.photo && author.photo.length) ? author.photo : (admin.photo && admin.photo.length) ? admin.photo : defaultPhoto,
-      social_links: author.social_links || admin.social_links || []
-    };
+  _id: admin._id,
+  email: admin.email,
+
+  nom: author.nom || admin.nom || '',
+  biographie: author.biographie || admin.biographie || '',
+  short_biographie: author.short_biographie || admin.short_biographie || '',
+
+  mon_parcours: author.mon_parcours || admin.mon_parcours || '',
+  mon_univers_litteraire: author.mon_univers_litteraire || admin.mon_univers_litteraire || '',
+  telephone: author.telephone || admin.telephone || '',
+
+  email_contact: author.email_contact || admin.email_contact || '',
+  message_accroche: author.message_accroche || admin.message_accroche || '',
+
+  photo: (author.photo && author.photo.length)
+    ? author.photo
+    : (admin.photo && admin.photo.length)
+      ? admin.photo
+      : defaultPhoto,
+
+  social_links: author.social_links || admin.social_links || []
+};
+
 
     return res.status(200).json({ status: 'success', admin: profile });
   } catch (err) {
