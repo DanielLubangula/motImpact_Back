@@ -21,11 +21,7 @@ await connectDB();
 const app = express();
 app.use(helmet());
 app.use(cors({
-<<<<<<< HEAD
-  origin: ['http://localhost:5173', 'https://motimpact-front.onrender.com/'],
-=======
-  origin: ['http://localhost:5173', 'http://localhost:3000','https://motimpact-front.onrender.com'],
->>>>>>> c7d773234b25f18450605c6460ff8d43ce0b410e
+  origin: ['http://localhost:5173', 'https://motimpact-front.onrender.com'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

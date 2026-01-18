@@ -58,7 +58,7 @@ export const updateProfile = async (req, res, next) => {
     console.log('Body:', req.body);
     console.log('File:', req.file);
     
-    const { nom, biographie, short_biographie, email_contact, message_accroche, email, currentPassword, password, socials } = req.body;
+    const { nom, biographie,telephone,mon_parcours,mon_univers_litteraire, short_biographie, email_contact, message_accroche, email, currentPassword, password, socials } = req.body;
     
     // Nettoyer l'email si il contient mailto:
     const cleanEmail = email ? email.replace('mailto:', '') : undefined;
@@ -116,7 +116,11 @@ export const updateProfile = async (req, res, next) => {
     if (biographie !== undefined) adminUpdateData.biographie = biographie;
     if (short_biographie !== undefined) adminUpdateData.short_biographie = short_biographie;
     if (email_contact !== undefined) adminUpdateData.email_contact = email_contact;
+    if (telephone !== undefined) adminUpdateData.telephone = telephone;
+    if (mon_univers_litteraire !== undefined) adminUpdateData.mon_univers_litteraire = mon_univers_litteraire;
+    if (mon_parcours !== undefined) adminUpdateData.mon_parcours = mon_parcours;
     if (message_accroche !== undefined) adminUpdateData.message_accroche = message_accroche;
+    if (parsedSocials !== undefined) adminUpdateData.social_links = parsedSocials;
     if (parsedSocials !== undefined) adminUpdateData.social_links = parsedSocials;
 
     // Changement de mot de passe si fourni
@@ -171,6 +175,9 @@ export const updateProfile = async (req, res, next) => {
     if (biographie !== undefined) authorUpdateData.biographie = biographie;
     if (short_biographie !== undefined) authorUpdateData.short_biographie = short_biographie;
     if (email_contact !== undefined) authorUpdateData.email_contact = email_contact;
+    if (telephone !== undefined) authorUpdateData.telephone = telephone;
+    if (mon_univers_litteraire !== undefined) authorUpdateData.mon_univers_litteraire = mon_univers_litteraire;
+    if (mon_parcours !== undefined) authorUpdateData.mon_parcours = mon_parcours;
     if (message_accroche !== undefined) authorUpdateData.message_accroche = message_accroche;
     if (parsedSocials !== undefined) authorUpdateData.social_links = parsedSocials;
     if (req.file) {
@@ -186,6 +193,9 @@ export const updateProfile = async (req, res, next) => {
       _id: updatedAdmin._id,
       email: updatedAdmin.email,
       nom: updatedAdmin.nom || '',
+      telephone: updatedAdmin.telephone || '',
+      mon_univers_litteraire: updatedAdmin.mon_univers_litteraire || '',
+      mon_parcours: updatedAdmin.mon_parcours || '',
       biographie: updatedAdmin.biographie || '',
       short_biographie: updatedAdmin.short_biographie || '',
       email_contact: updatedAdmin.email_contact || '',
@@ -199,7 +209,7 @@ export const updateProfile = async (req, res, next) => {
     logger.error({ err }, 'Error updating profile');
     return next(new AppError(500, err.message));
   }
-};
+}; 
 
 /**
  * Supprimer la photo du profil (réinitialise à image par défaut)
