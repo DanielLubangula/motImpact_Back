@@ -39,6 +39,7 @@ app.use('/api/public', publicBooksRoutes);
 app.use('/api/public', publicActusRoutes);
 app.use('/api/public', publicContactRoutes);
 
+
 app.get('/', (req, res) => {  
   res.send('Bienvenue sur notre site !');
 });

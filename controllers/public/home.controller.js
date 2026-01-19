@@ -34,13 +34,13 @@ export const getHome = async (req, res, next) => {
     let livreAvant = null;
     if (featuredBook) {
       livreAvant = {
+        devise : featuredBook.devise,
         id: featuredBook._id,
         titre: featuredBook.titre,
         resume_court: featuredBook.extrait || featuredBook.description || '',
         couverture: featuredBook.couverture || '',
         statut: featuredBook.statut || 'gratuit',
-        prix: featuredBook.prix || 0,
-        devise : featuredBook.devise
+        prix: featuredBook.prix || 0
       };
     }
 
