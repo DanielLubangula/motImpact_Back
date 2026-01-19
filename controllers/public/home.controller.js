@@ -39,7 +39,7 @@ export const getHome = async (req, res, next) => {
         resume_court: featuredBook.extrait || featuredBook.description || '',
         couverture: featuredBook.couverture || '',
         statut: featuredBook.statut || 'gratuit',
-        prix: featuredBook.prix || 0
+        prix: featuredBook.prix || 0,
         devise : featuredBook.devise
       };
     }
