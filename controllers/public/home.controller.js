@@ -40,6 +40,7 @@ export const getHome = async (req, res, next) => {
         couverture: featuredBook.couverture || '',
         statut: featuredBook.statut || 'gratuit',
         prix: featuredBook.prix || 0
+        devise : featuredBook.devise
       };
     }
 
